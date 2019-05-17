@@ -1,0 +1,235 @@
+package pb.bid;
+
+enum Cmd{
+	//空
+	Cmd_Nil = 0;
+	
+	Cmd_Create = 101;
+    Cmd_Close = 102;
+    Cmd_Bidding = 103;
+    Cmd_FetchBidResult = 104;
+    Cmd_FetchBiddingsByPassportId = 105;
+    Cmd_FetchBiddingPriceCount = 106;
+    Cmd_FetchBidsByIds = 107;
+    Cmd_FetchMyBids = 108;
+    Cmd_Open = 109;
+    Cmd_SearchBids = 110;
+}
+
+message Payload{
+	optional sint64 passport_id = 1;
+	optional Cmd cmd = 2;
+	optional sint32 session_id = 3;
+	optional string error = 4;
+	optional string msg = 5;
+	optional string info = 6;
+    optional string ip_request_from = 7;
+
+    optional PBCreateReq create_req = 100;
+    optional PBCreateResp create_resp = 101;
+
+    optional PBCloseReq close_req = 102;
+    optional PBCloseResp close_resp = 103;
+
+    optional PBBiddingReq bidding_req = 104;
+    optional PBBiddingResp bidding_resp = 105;
+
+    optional PBFetchBidResultReq fetch_bid_result_req = 106;
+    optional PBFetchBidResultResp fetch_bid_result_resp = 107;
+
+    optional PBFetchBiddingsByPassportIdReq fetch_bidding_by_passport_id_req = 108;
+    optional PBFetchBiddingsByPassportIdResp fetch_bidding_by_passport_id_resp = 109;
+
+    optional PBFetchBiddingPriceCountReq fetch_bidding_price_count_req = 110;
+    optional PBFetchBiddingPriceCountResp fetch_bidding_price_count_resp = 111;
+
+    optional PBFetchBidsByIdsReq fetch_bids_by_ids_req = 112;
+    optional PBFetchBidsByIdsResp fetch_bids_by_ids_resp = 113;
+
+    optional PBFetchMyBidsReq fetch_my_bids_req = 114;
+    optional PBFetchMyBidsResp fetch_my_bids_resp = 115;
+
+    optional PBOpenReq open_req = 116;
+
+    optional PBSearchBidsReq search_bids_req = 117;
+    optional PBSearchBidsResp search_bids_resp= 118;
+}
+
+
+message PBBid {
+    // id
+    optional sint64 id = 1;
+
+    optional string title = 2;
+
+    optional sint64 publisher_passport_id = 3;
+
+    enum Status{
+        Status_Created = 0;
+        Status_InProgress = 1;
+        Status_Closed = 2;
+    }
+
+    optional Status status = 4 [default = Status_Created];
+
+    // 经度
+    optional double publish_location_longitude = 5; 
+    // 纬度
+    optional double publish_location_latitude = 6; 
+
+    optional string publish_location_ip = 7;
+
+    optional bool allow_search_by_location = 8;
+
+    optional string join_code = 9;
+
+    optional string verify_code = 10;
+    //单人出价次数限制
+    optional sint32 bidding_times_limit = 11;
+
+    optional sint64 created_at = 12;
+
+    optional sint64 opened_at = 13;
+    // 更新时间戳
+    optional sint64 updated_at = 14;
+
+    optional sint64 closed_at = 15;
+
+    optional PBBidResult bid_result = 16;
+    // 请求者的出价纪录
+    repeated PBBidding your_biddings = 17;
+
+    optional sint32 your_bidding_count = 18;
+
+    optional string publisher_account = 19;
+}
+
+message PBBidding{
+    optional sint64 id = 1;
+    optional sint64 bid_id = 2;
+    optional sint64 passport_id = 3;
+    optional double price = 4;
+    optional sint64 created_at = 5;
+    optional sint64 deleted_at = 6;
+}
+
+message PBBidResult{
+    optional sint64 id = 1;
+    optional sint64 bid_id = 2;
+    optional double only_lowest_bidding_price = 3;
+
+    optional sint64 winner_passport_id = 4;
+    //唯一最低价出价时间
+    optional sint64 only_lowest_bidding_at = 5;
+    // 共有多少次出价
+    optional sint64 bidding_count = 6;
+    // 共有多少人出价
+    optional sint64 bidder_count = 7;
+
+    optional sint64 closed_at = 8;
+
+    optional bool has_winner_price = 9[default = false];
+
+    optional string winner_account = 10;
+}
+
+message PBBiddingPriceCount{
+    optional sint64 id = 1;
+    optional sint64 bid_id = 2;
+    optional double price = 3;
+    optional sint64 count = 4;
+}
+
+
+message PBCreateReq{
+    optional PBBid bid = 1;
+}
+
+message PBCreateResp{
+    optional PBBid bid = 1;
+}
+
+message PBCloseReq{
+    optional sint64 bid_id = 1;
+}
+
+message PBCloseResp{
+    optional PBBidResult bid_result = 1;
+}
+
+message PBOpenReq{
+    optional sint64 bid_id = 1;
+}
+
+
+
+message PBBiddingReq{
+    optional PBBidding bidding = 1;
+}
+
+message PBBiddingResp{
+    optional PBBidding bidding = 1;
+}
+
+message PBFetchBidResultReq{
+    optional sint64 bid_id = 1;
+}
+
+message PBFetchBidResultResp{
+    optional PBBidResult bid_result = 1;
+}
+
+
+message PBFetchBiddingsByPassportIdReq{
+    optional sint64 passport_id = 1;
+    optional sint64 bid_id = 2;
+}
+
+message PBFetchBiddingsByPassportIdResp{
+    repeated PBBidding biddings = 1;
+}
+
+message PBFetchBiddingPriceCountReq{
+    optional sint64 bid_id = 1;
+    optional sint32 page = 2;
+}
+
+message PBFetchBiddingPriceCountResp{
+    repeated PBBiddingPriceCount list = 1;
+    optional sint32 page = 2;
+    optional sint32 total_page = 3;
+    optional sint32 total_count = 4;
+}
+
+message PBFetchBidsByIdsReq{
+    repeated sint64 ids = 1;
+    optional bool with_result = 2;
+}
+
+message PBFetchBidsByIdsResp{
+    repeated PBBid bids = 1;
+}
+
+message PBFetchMyBidsReq{
+    optional sint64 passport_id = 1;
+    optional sint32 offset = 2;
+    optional sint32 limit = 3;
+    optional bool with_result = 4[default = true];
+    optional bool published_by_me = 5[default = false];
+}
+
+message PBFetchMyBidsResp{
+    repeated PBBid bids = 1;
+    optional bool has_more = 2;
+    optional sint32 total_count = 3;
+}
+
+message PBSearchBidsReq{
+    optional double latitude = 1;
+    optional double longitude = 2;
+}
+
+message PBSearchBidsResp{
+    repeated PBBid bids = 1;
+}
+
